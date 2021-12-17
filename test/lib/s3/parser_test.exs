@@ -121,14 +121,38 @@ defmodule ExAws.S3.ParserTest do
       </Owner>
       <StorageClass>STANDARD</StorageClass>
       <PartNumberMarker>0</PartNumberMarker>
-      <NextPartNumberMarker>0</NextPartNumberMarker>
-      <MaxParts>1000</MaxParts>
+      <NextPartNumberMarker>2</NextPartNumberMarker>
+      <MaxParts>10000</MaxParts>
       <IsTruncated>false</IsTruncated>
     </ListPartsResult>
     """
 
     assert {:ok, %{body: body}} = ExAws.S3.Parsers.parse_list_parts({:ok, %{body: response}})
-    assert body == %{parts: []}
+
+    assert body == %{
+             bucket: "name_of_my_bucket",
+             key: "name_of_my_key.ext",
+             upload_id:
+               "e3gloTamzXlqzgRfKIXrFBhnxCfM35jhktoh.wduDUJHy61R_hjglrx_rLguDGxmOvPeDfzJEK7mxgx7eRwPs9XbYXVmDywrRjbJSmqr.McfkCRDjuI4cdB72IYzfFJl",
+             initiator: [
+               %{
+                 id: "arn:aws:iam::123456789012:user/username",
+                 display_name: "username"
+               }
+             ],
+             owner: [
+               %{
+                 id: "75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a",
+                 display_name: "noone@example.com"
+               }
+             ],
+             storage_class: "STANDARD",
+             part_number_marker: "0",
+             next_part_number_marker: "2",
+             max_parts: "10000",
+             is_truncated: "false",
+             parts: []
+           }
   end
 
   test "#parse_list_parts parses parts of the multipart upload" do
@@ -149,7 +173,7 @@ defmodule ExAws.S3.ParserTest do
       <StorageClass>STANDARD</StorageClass>
       <PartNumberMarker>0</PartNumberMarker>
       <NextPartNumberMarker>2</NextPartNumberMarker>
-      <MaxParts>1000</MaxParts>
+      <MaxParts>10000</MaxParts>
       <IsTruncated>false</IsTruncated>
       <Part>
         <PartNumber>1</PartNumber>
@@ -169,14 +193,37 @@ defmodule ExAws.S3.ParserTest do
     assert {:ok, %{body: body}} = ExAws.S3.Parsers.parse_list_parts({:ok, %{body: response}})
 
     assert body == %{
+             bucket: "name_of_my_bucket",
+             key: "name_of_my_key.ext",
+             upload_id:
+               "e3gloTamzXlqzgRfKIXrFBhnxCfM35jhktoh.wduDUJHy61R_hjglrx_rLguDGxmOvPeDfzJEK7mxgx7eRwPs9XbYXVmDywrRjbJSmqr.McfkCRDjuI4cdB72IYzfFJl",
+             initiator: [
+               %{
+                 id: "arn:aws:iam::123456789012:user/username",
+                 display_name: "username"
+               }
+             ],
+             owner: [
+               %{
+                 id: "75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a",
+                 display_name: "noone@example.com"
+               }
+             ],
+             storage_class: "STANDARD",
+             part_number_marker: "0",
+             next_part_number_marker: "2",
+             max_parts: "10000",
+             is_truncated: "false",
              parts: [
                %{
                  part_number: "1",
+                 last_modified: "2021-12-10T18:43:58.000Z",
                  etag: ~s("d53f6b1e2a3b54515f8dbcbcbe3aef9e"),
                  size: "10000000"
                },
                %{
                  part_number: "2",
+                 last_modified: "2021-12-10T18:43:47.000Z",
                  etag: ~s("d1cae2efbf9bfdec76ef78e5c2dd41e5"),
                  size: "3811508"
                }

@@ -103,17 +103,36 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse_list_multipart_uploads(val), do: val
 
-    def parse_list_parts({:ok, %{body: xml} = resp}) do
+    def parse_list_parts({:ok, resp = %{body: xml}}) do
       parsed_body =
         SweetXml.xpath(xml, ~x"//ListPartsResult",
+          bucket: ~x"./Bucket/text()"s,
+          key: ~x"./Key/text()"s,
+          upload_id: ~x"./UploadId/text()"s,
+          initiator: [
+            ~x"./Initiator"l,
+            id: ~x"./ID/text()"s,
+            display_name: ~x"./DisplayName/text()"s,
+          ],
+          owner: [
+            ~x"./Owner"l,
+            id: ~x"./ID/text()"s,
+            display_name: ~x"./DisplayName/text()"s,
+          ],
+          storage_class: ~x"./StorageClass/text()"s,
+          part_number_marker: ~x"./PartNumberMarker/text()"s,
+          next_part_number_marker: ~x"./NextPartNumberMarker/text()"s,
+          max_parts: ~x"./MaxParts/text()"s,
+          is_truncated: ~x"./IsTruncated/text()"s,
           parts: [
             ~x"./Part"l,
             part_number: ~x"./PartNumber/text()"s,
+            last_modified: ~x"./LastModified/text()"s,
             etag: ~x"./ETag/text()"s,
             size: ~x"./Size/text()"s
           ]
         )
-
+  
       {:ok, %{resp | body: parsed_body}}
     end
 
